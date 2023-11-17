@@ -126,15 +126,21 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
             endpointGroup = Endpoint.parse(authority());
         }
 
-        final CancellationScheduler responseCancellationScheduler;
+        final DefaultClientRequestContext ctx;
         if (timedOut()) {
-            responseCancellationScheduler = CancellationScheduler.finished(false);
+            ctx = initializeCtx(CancellationScheduler.finished(false), endpointGroup);
         } else {
-            responseCancellationScheduler = CancellationScheduler.of(0);
+            ctx = initializeCtx(CancellationScheduler.of(0), endpointGroup);
+
             final CountDownLatch latch = new CountDownLatch(1);
-            eventLoop().execute(() -> {
-                responseCancellationScheduler.init(eventLoop(), noopCancellationTask, 0, /* server */ false);
-                latch.countDown();
+
+            ctx.whenInitialized().handle((unused1, unused2) -> {
+                eventLoop().execute(() -> {
+                    ctx.responseCancellationScheduler().init(eventLoop(), noopCancellationTask, 0, /* server */
+                                                             false);
+                    latch.countDown();
+                });
+                return null;
             });
 
             try {
@@ -143,14 +149,6 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
             }
         }
 
-        final DefaultClientRequestContext ctx = new DefaultClientRequestContext(
-                eventLoop(), meterRegistry(), sessionProtocol(),
-                id(), method(), requestTarget(), options, request(), rpcRequest(),
-                requestOptions, responseCancellationScheduler,
-                isRequestStartTimeSet() ? requestStartTimeNanos() : System.nanoTime(),
-                isRequestStartTimeSet() ? requestStartTimeMicros() : SystemInfo.currentTimeMicros());
-
-        ctx.init(endpointGroup);
         ctx.logBuilder().session(fakeChannel(), sessionProtocol(), sslSession(), connectionTimings);
 
         if (request() != null) {
@@ -165,7 +163,6 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
     }
 
     // Methods that were overridden to change the return type.
-
     @Override
     public ClientRequestContextBuilder meterRegistry(MeterRegistry meterRegistry) {
         return (ClientRequestContextBuilder) super.meterRegistry(meterRegistry);
@@ -216,5 +213,17 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
     @Override
     public ClientRequestContextBuilder timedOut(boolean timedOut) {
         return (ClientRequestContextBuilder) super.timedOut(timedOut);
+    }
+
+    private DefaultClientRequestContext initializeCtx(CancellationScheduler responseCancellationScheduler,
+                                                      EndpointGroup endpointGroup) {
+        final DefaultClientRequestContext ctx = new DefaultClientRequestContext(
+                eventLoop(), meterRegistry(), sessionProtocol(),
+                id(), method(), requestTarget(), options, request(), rpcRequest(),
+                requestOptions, responseCancellationScheduler,
+                isRequestStartTimeSet() ? requestStartTimeNanos() : System.nanoTime(),
+                isRequestStartTimeSet() ? requestStartTimeMicros() : SystemInfo.currentTimeMicros());
+        ctx.init(endpointGroup);
+        return ctx;
     }
 }
