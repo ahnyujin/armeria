@@ -78,8 +78,7 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
      */
     @Deprecated
     public ClientRequestContextBuilder endpoint(Endpoint endpoint) {
-        endpointGroup = requireNonNull(endpoint, "endpointGroup");
-        return this;
+        return endpointGroup(endpoint);
     }
 
     /**

@@ -46,7 +46,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelProgressivePromise;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultChannelId;
-import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.EventLoop;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -200,9 +199,6 @@ public abstract class AbstractRequestContextBuilder {
      * Returns the {@link EventLoop} that handles the request.
      */
     protected final EventLoop eventLoop() {
-        if (eventLoop == null) {
-            eventLoop = new DefaultEventLoop();
-        }
         return eventLoop;
     }
 
