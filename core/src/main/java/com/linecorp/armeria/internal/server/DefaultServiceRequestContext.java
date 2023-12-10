@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSession;
 
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.ContextAwareBlockingTaskExecutor;
 import com.linecorp.armeria.common.ContextAwareEventLoop;
 import com.linecorp.armeria.common.ExchangeType;
@@ -299,6 +300,10 @@ public final class DefaultServiceRequestContext
     public ContextAwareEventLoop eventLoop() {
         if (contextAwareEventLoop != null) {
             return contextAwareEventLoop;
+        }
+        if (ch.eventLoop() == null) {
+            return contextAwareEventLoop =
+                    ContextAwareEventLoop.of(this, CommonPools.workerGroup().next());
         }
         return contextAwareEventLoop = ContextAwareEventLoop.of(this, ch.eventLoop());
     }

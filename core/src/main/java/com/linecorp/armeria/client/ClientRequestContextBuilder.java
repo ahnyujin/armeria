@@ -135,8 +135,8 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
 
             ctx.whenInitialized().handle((unused1, unused2) -> {
                 eventLoop().execute(() -> {
-                    ctx.responseCancellationScheduler().init(eventLoop(), noopCancellationTask, 0, /* server */
-                                                             false);
+                    ctx.responseCancellationScheduler().init(eventLoop(), noopCancellationTask, 0,
+                            /* server */ false);
                     latch.countDown();
                 });
                 return null;

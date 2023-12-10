@@ -492,6 +492,7 @@ public interface RequestContext extends Unwrappable {
      * before executing any submitted tasks. If you want to use {@link EventLoop} without setting this context,
      * call {@link ContextAwareEventLoop#withoutContext()} and use the returned {@link EventLoop}.
      */
+    @Nullable
     ContextAwareEventLoop eventLoop();
 
     /**

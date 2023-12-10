@@ -236,10 +236,9 @@ public final class ServiceRequestContextBuilder extends AbstractRequestContextBu
         } else {
             requestCancellationScheduler = CancellationScheduler.of(0);
             final CountDownLatch latch = new CountDownLatch(1);
-            eventLoop().execute(() -> {
-                requestCancellationScheduler.init(eventLoop(), noopCancellationTask, 0, /* server */ true);
-                latch.countDown();
-            });
+            requestCancellationScheduler.init(eventLoop(), noopCancellationTask, 0, /* server */
+                                              true);
+            latch.countDown();
 
             try {
                 latch.await(1000, TimeUnit.MILLISECONDS);

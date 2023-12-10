@@ -162,7 +162,7 @@ public final class RequestContextCurrentTraceContext extends CurrentTraceContext
 
         final RequestContext ctx = getRequestContextOrWarnOnce();
 
-        if (ctx != null && ctx.eventLoop().inEventLoop()) {
+        if (ctx != null && ctx.eventLoop() != null && ctx.eventLoop().inEventLoop()) {
             return createScopeForRequestThread(ctx, currentSpan);
         } else {
             // The RequestContext is the canonical thread-local storage for the thread processing the request.
