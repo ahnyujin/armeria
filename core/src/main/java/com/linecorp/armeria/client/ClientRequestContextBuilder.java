@@ -162,6 +162,7 @@ public final class ClientRequestContextBuilder extends AbstractRequestContextBui
     }
 
     // Methods that were overridden to change the return type.
+
     @Override
     public ClientRequestContextBuilder meterRegistry(MeterRegistry meterRegistry) {
         return (ClientRequestContextBuilder) super.meterRegistry(meterRegistry);

@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import javax.net.ssl.SSLSession;
 
 import com.linecorp.armeria.common.AbstractRequestContextBuilder;
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.ExchangeType;
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpRequest;
@@ -236,9 +237,16 @@ public final class ServiceRequestContextBuilder extends AbstractRequestContextBu
         } else {
             requestCancellationScheduler = CancellationScheduler.of(0);
             final CountDownLatch latch = new CountDownLatch(1);
-            requestCancellationScheduler.init(eventLoop(), noopCancellationTask, 0, /* server */
-                                              true);
-            latch.countDown();
+
+            if(eventLoop() == null) {
+                eventLoop(CommonPools.workerGroup().next());
+            }
+
+            eventLoop().execute(() -> {
+                requestCancellationScheduler.init(eventLoop(), noopCancellationTask, 0, /* server */
+                                                  true);
+                latch.countDown();
+            });
 
             try {
                 latch.await(1000, TimeUnit.MILLISECONDS);
