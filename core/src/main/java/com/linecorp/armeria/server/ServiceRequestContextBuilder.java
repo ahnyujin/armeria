@@ -238,7 +238,7 @@ public final class ServiceRequestContextBuilder extends AbstractRequestContextBu
             requestCancellationScheduler = CancellationScheduler.of(0);
             final CountDownLatch latch = new CountDownLatch(1);
 
-            if(eventLoop() == null) {
+            if (eventLoop() == null) {
                 eventLoop(CommonPools.workerGroup().next());
             }
 
